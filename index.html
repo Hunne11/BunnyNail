@@ -2,37 +2,100 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Bunny Nail - Hệ Thống Tính Bill</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Bunny Nail - Quản Lý Tính Bill</title>
     <style>
-        :root { --primary: #d63384; --bg: #fff5f8; --success: #28a745; }
-        * { box-sizing: border-box; }
-        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); display: flex; justify-content: center; padding: 20px; margin: 0; }
-        .container { display: flex; gap: 20px; max-width: 1000px; width: 100%; flex-wrap: wrap; }
-        .card { background: white; padding: 25px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); flex: 1; min-width: 350px; }
-        h2 { color: var(--primary); margin-top: 0; font-size: 1.4rem; border-bottom: 2px solid var(--bg); padding-bottom: 10px; }
-
-        .select-box { width: 100%; padding: 12px; border: 2px solid #eee; border-radius: 10px; font-size: 1rem; outline: none; margin-bottom: 10px; cursor: pointer; }
-        .select-box:focus { border-color: var(--primary); }
-        label { font-size: 0.8rem; color: #888; margin-bottom: 5px; display: block; font-weight: bold; }
-
-        .row { display: flex; gap: 10px; margin-bottom: 20px; }
-        .input-price { width: 100px; padding: 12px; border: 2px solid #eee; border-radius: 10px; text-align: right; }
-        .btn-add { flex: 1; background: var(--primary); color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; padding: 15px; transition: 0.3s; }
-        .btn-add:hover { opacity: 0.8; }
-
-        table { width: 100%; border-collapse: collapse; }
-        th { text-align: left; color: #888; font-size: 0.8rem; padding: 10px; border-bottom: 2px solid #f8f8f8; }
-        td { padding: 12px 10px; border-bottom: 1px solid #fcfcfc; }
+        :root { --primary: #d63384; --bg: #fff5f8; --success: #28a745; --text: #333; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         
-        .total-box { background: var(--success); color: white; padding: 20px; border-radius: 15px; margin-top: 20px; display: flex; justify-content: space-between; font-size: 1.4rem; font-weight: bold; }
-        .remove-btn { color: #ff4d4d; border: none; background: none; cursor: pointer; font-weight: bold; font-size: 1.1rem; }
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            background: var(--bg); 
+            margin: 0; 
+            padding: 10px;
+            color: var(--text);
+        }
+
+        /* Container chính sử dụng Flexbox */
+        .container { 
+            display: flex; 
+            flex-direction: column; /* Mặc định cho điện thoại: Xếp dọc */
+            gap: 15px; 
+            max-width: 1200px; 
+            margin: 0 auto; 
+        }
+
+        /* Khi màn hình lớn hơn 768px (Máy tính) */
+        @media (min-width: 768px) {
+            .container { 
+                flex-direction: row; /* Chuyển sang hàng ngang */
+                padding: 20px;
+            }
+            .card { flex: 1; }
+        }
+
+        .card { 
+            background: white; 
+            padding: 20px; 
+            border-radius: 15px; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05); 
+        }
+
+        h2 { color: var(--primary); margin-top: 0; font-size: 1.2rem; border-bottom: 2px solid var(--bg); padding-bottom: 10px; }
+
+        label { font-size: 0.85rem; font-weight: bold; color: #666; margin: 10px 0 5px; display: block; }
+
+        .select-box, input { 
+            width: 100%; 
+            padding: 12px; 
+            border: 2px solid #f0f0f0; 
+            border-radius: 10px; 
+            font-size: 16px; /* Chống zoom tự động trên iPhone */
+            outline: none;
+            margin-bottom: 10px;
+        }
+
+        .select-box:focus, input:focus { border-color: var(--primary); }
+
+        .row { display: flex; gap: 8px; margin-bottom: 15px; }
+
+        .btn-add { 
+            background: var(--primary); 
+            color: white; 
+            border: none; 
+            border-radius: 10px; 
+            padding: 15px; 
+            font-weight: bold; 
+            width: 100%; 
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        /* Bảng hóa đơn */
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th { text-align: left; font-size: 0.75rem; color: #aaa; padding: 10px; border-bottom: 1px solid #eee; }
+        td { padding: 12px 10px; border-bottom: 1px solid #f9f9f9; font-size: 0.95rem; }
+
+        .total-box { 
+            background: var(--success); 
+            color: white; 
+            padding: 15px; 
+            border-radius: 12px; 
+            margin-top: 20px; 
+            display: flex; 
+            justify-content: space-between; 
+            font-size: 1.3rem; 
+            font-weight: bold; 
+        }
+
+        .remove-btn { color: #ff4d4d; border: none; background: none; font-size: 1.2rem; cursor: pointer; }
     </style>
 </head>
 <body>
 
 <div class="container">
     <div class="card">
-        <h2>Chọn Dịch Vụ</h2>
+        <h2>Bunny Nail Menu</h2>
         
         <label>1. NHÓM CHÍNH</label>
         <select id="parent-select" class="select-box" onchange="updateSubMenu()">
@@ -40,7 +103,7 @@
             <option value="son">SƠN MÓNG</option>
             <option value="cham_soc">CHĂM SÓC</option>
             <option value="trang_tri">TRANG TRÍ</option>
-            <option value="khac">KHÁC / GHI THÊM</option>
+            <option value="khac">GHI THÊM / KHÁC</option>
         </select>
 
         <label>2. CHI TIẾT</label>
@@ -49,25 +112,25 @@
         </select>
 
         <div class="row">
-            <input type="text" id="custom-name" placeholder="Tên dịch vụ..." style="flex:2; padding:12px; border:2px solid #eee; border-radius:10px;">
-            <input type="number" id="custom-price" class="input-price" placeholder="Giá (K)">
+            <input type="text" id="custom-name" placeholder="Tên dịch vụ...">
+            <input type="number" id="custom-price" style="width: 100px;" placeholder="Giá K">
         </div>
         <button class="btn-add" onclick="addItem()">THÊM VÀO BILL</button>
 
-        <div style="border-top: 1px dashed #ccc; padding-top: 15px; margin-top: 10px;">
-            <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
-                <span>Công thợ (K):</span>
-                <input type="number" id="fee-cong" value="150" oninput="calculate()" style="width:70px;">
+        <div style="margin-top: 20px; border-top: 1px solid #eee; padding-top: 10px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                <span style="font-size: 0.9rem;">Tiền công (K):</span>
+                <input type="number" id="fee-cong" value="150" oninput="calculate()" style="width:80px; margin:0;">
             </div>
-            <div style="display:flex; justify-content:space-between;">
-                <span>Xăng xe (K):</span>
-                <input type="number" id="fee-xang" value="30" oninput="calculate()" style="width:70px;">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size: 0.9rem;">Xăng xe (K):</span>
+                <input type="number" id="fee-xang" value="30" oninput="calculate()" style="width:80px; margin:0;">
             </div>
         </div>
     </div>
 
     <div class="card">
-        <h2>Hóa Đơn</h2>
+        <h2>Hóa Đơn Chi Tiết</h2>
         <table>
             <thead>
                 <tr>
@@ -84,100 +147,87 @@
             <span>TỔNG:</span>
             <span id="total-price">0đ</span>
         </div>
+        <button onclick="clearAll()" style="margin-top:15px; background:none; border:1px solid #ccc; width:100%; padding:10px; border-radius:10px; color:#999; cursor:pointer;">Xóa hóa đơn mới</button>
     </div>
 </div>
 
 <script>
-    // Dữ liệu dịch vụ - Sửa giá tại đây rất nhanh bằng Ctrl + H
     const serviceData = {
-        'son': [
-            {n: 'Sơn Gel Tay', p: 100}, {n: 'Sơn Gel Chân', p: 90}, 
-            {n: 'Sơn Thạch', p: 120}, {n: 'Mắt Mèo', p: 150},
-            {n: 'Tráng Gương', p: 150}, {n: 'Ombre', p: 150}, {n: 'French', p: 150},
-            {n: 'Úp Móng Tay', p: 50}, {n: 'Úp Móng Chân', p: 30}
-        ],
-        'cham_soc': [
-            {n: 'Sơn Cứng Móng', p: 50}, {n: 'Cắt Da', p: 30}, {n: 'Phá Gel', p: 20}
-        ],
-        'trang_tri': [
-            {n: 'Vẽ Nét', p: 15}, {n: 'Đính Đá Lớn', p: 10},
-            {n: 'Kim Tuyến', p: 5}, {n: 'Gel lặn', p: 15},
-            {n: 'Ẩn xà cừ', p: 10}, {n: 'Loang', p: 10}
-        ]
+        'son': [{n:'Sơn Gel Tay',p:100},{n:'Sơn Gel Chân',p:90},{n:'Sơn Thạch',p:120},{n:'Úp Móng Tay',p:50},{n:'Úp Móng Chân',p:30}],
+        'cham_soc': [{n:'Sơn Cứng Móng',p:50},{n:'Cắt Da',p:30},{n:'Phá Gel',p:20}],
+        'trang_tri': [{n:'Vẽ Nét',p:15},{n:'Đính Đá',p:10},{n:'Kim Tuyến',p:5},{n:'Ẩn xà cừ',p:10}]
     };
 
     let basket = {};
+
+    // Load món "KHÁC" đã lưu từ máy
+    function getExtraServices() {
+        return JSON.parse(localStorage.getItem('bunny_extras')) || [];
+    }
 
     function updateSubMenu() {
         const parentVal = document.getElementById('parent-select').value;
         const subSelect = document.getElementById('main-select');
         subSelect.innerHTML = '<option value="">-- Chọn chi tiết --</option>';
 
-        if (serviceData[parentVal]) {
-            serviceData[parentVal].forEach(item => {
-                let opt = document.createElement('option');
-                opt.value = item.n;
-                opt.text = `${item.n} - ${item.p}K`;
-                opt.setAttribute('data-price', item.p);
-                subSelect.appendChild(opt);
-            });
-        }
+        let list = serviceData[parentVal] || [];
+        if(parentVal === 'khac') list = getExtraServices();
+
+        list.forEach(item => {
+            let opt = document.createElement('option');
+            opt.value = item.n;
+            opt.text = `${item.n} - ${item.p}K`;
+            opt.setAttribute('data-price', item.p);
+            subSelect.appendChild(opt);
+        });
     }
 
     function autoFillPrice() {
         const select = document.getElementById('main-select');
-        const selectedOption = select.options[select.selectedIndex];
-        if (selectedOption && selectedOption.value) {
-            document.getElementById('custom-name').value = selectedOption.value;
-            document.getElementById('custom-price').value = selectedOption.getAttribute('data-price');
+        const opt = select.options[select.selectedIndex];
+        if (opt.value) {
+            document.getElementById('custom-name').value = opt.value;
+            document.getElementById('custom-price').value = opt.getAttribute('data-price');
         }
     }
 
-   function addItem() {
-    const nameInput = document.getElementById('custom-name');
-    const priceInput = document.getElementById('custom-price');
-    const parentSelect = document.getElementById('parent-select').value;
-    
-    let name = nameInput.value.trim();
-    let price = parseInt(priceInput.value);
+    function addItem() {
+        const nameInp = document.getElementById('custom-name');
+        const priceInp = document.getElementById('custom-price');
+        const parentVal = document.getElementById('parent-select').value;
+        
+        let name = nameInp.value.trim();
+        let price = parseInt(priceInp.value);
 
-    if (!name || isNaN(price)) return alert("Thiếu tên hoặc giá!");
+        if (!name || isNaN(price)) return alert("Vui lòng nhập đủ!");
 
-    if (basket[name]) {
-        basket[name].qty += 1;
-    } else {
-        basket[name] = { price: price, qty: 1 };
+        // Lưu vào máy nếu là món mới ở mục "KHÁC"
+        if(parentVal === 'khac') {
+            let extras = getExtraServices();
+            if(!extras.find(x => x.n === name)) {
+                extras.push({n: name, p: price});
+                localStorage.setItem('bunny_extras', JSON.stringify(extras));
+            }
+        }
+
+        basket[name] = basket[name] ? {price, qty: basket[name].qty + 1} : {price, qty: 1};
+        renderBill();
     }
-
-    if (parentSelect === 'khac') {
-        saveNewService(name, price);
-    }
-
-    renderBill();
-}
 
     function renderBill() {
         const body = document.getElementById('bill-body');
         body.innerHTML = "";
-        let subtotal = 0;
-
+        let sub = 0;
         for (let n in basket) {
             let item = basket[n];
-            subtotal += item.price * item.qty;
-            body.innerHTML += `<tr>
-                <td>${n}</td>
-                <td style="text-align: center;">x${item.qty}</td>
-                <td style="text-align: right;">${(item.price * item.qty)}k</td>
-                <td style="text-align: right;"><button class="remove-btn" onclick="removeItem('${n}')">✕</button></td>
-            </tr>`;
+            sub += item.price * item.qty;
+            body.innerHTML += `<tr><td>${n}</td><td align="center">x${item.qty}</td><td align="right">${item.price*item.qty}k</td><td align="right"><button class="remove-btn" onclick="removeItem('${n}')">✕</button></td></tr>`;
         }
-        calculate(subtotal);
+        calculate(sub);
     }
 
-    function removeItem(name) {
-        delete basket[name];
-        renderBill();
-    }
+    function removeItem(n) { delete basket[n]; renderBill(); }
+    function clearAll() { if(confirm("Xóa toàn bộ hóa đơn?")) { basket = {}; renderBill(); } }
 
     function calculate(sub = null) {
         if (sub === null) {
@@ -188,35 +238,6 @@
         const x = parseInt(document.getElementById('fee-xang').value) || 0;
         document.getElementById('total-price').innerText = ((sub + c + x) * 1000).toLocaleString('vi-VN') + "đ";
     }
-
-    
-function saveNewService(name, price) {
-    let extraServices = JSON.parse(localStorage.getItem('extraServices')) || [];
-    
-    if (!extraServices.find(s => s.n === name)) {
-        extraServices.push({ n: name, p: price });
-        localStorage.setItem('extraServices', JSON.stringify(extraServices));
-        updateExtraMenu(); 
-    }
-}
-
-function updateExtraMenu() {
-    let extraServices = JSON.parse(localStorage.getItem('extraServices')) || [];
-    if (document.getElementById('parent-select').value === 'khac') {
-        const subSelect = document.getElementById('main-select');
-        extraServices.forEach(item => {
-            let opt = document.createElement('option');
-            opt.value = item.n;
-            opt.text = `${item.n} - ${item.p}K (Đã lưu)`;
-            opt.setAttribute('data-price', item.p);
-            subSelect.appendChild(opt);
-        });
-    }
-}
-
-window.onload = function() {
-     updateExtraMenu();
-};
 </script>
 </body>
 </html>
