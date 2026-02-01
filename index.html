@@ -133,23 +133,28 @@
         }
     }
 
-    function addItem() {
-        const nameInp = document.getElementById('custom-name');
-        const priceInp = document.getElementById('custom-price');
-        let name = nameInp.value.trim();
-        let price = parseInt(priceInp.value);
+   function addItem() {
+    const nameInput = document.getElementById('custom-name');
+    const priceInput = document.getElementById('custom-price');
+    const parentSelect = document.getElementById('parent-select').value;
+    
+    let name = nameInput.value.trim();
+    let price = parseInt(priceInput.value);
 
-        if (!name || isNaN(price)) return alert("Thiếu tên hoặc giá!");
+    if (!name || isNaN(price)) return alert("Thiếu tên hoặc giá!");
 
-        if (basket[name]) {
-            basket[name].qty += 1;
-        } else {
-            basket[name] = { price: price, qty: 1 };
-        }
-
-        nameInp.value = ""; priceInp.value = "";
-        renderBill();
+    if (basket[name]) {
+        basket[name].qty += 1;
+    } else {
+        basket[name] = { price: price, qty: 1 };
     }
+
+    if (parentSelect === 'khac') {
+        saveNewService(name, price);
+    }
+
+    renderBill();
+}
 
     function renderBill() {
         const body = document.getElementById('bill-body');
@@ -183,6 +188,35 @@
         const x = parseInt(document.getElementById('fee-xang').value) || 0;
         document.getElementById('total-price').innerText = ((sub + c + x) * 1000).toLocaleString('vi-VN') + "đ";
     }
+
+    
+function saveNewService(name, price) {
+    let extraServices = JSON.parse(localStorage.getItem('extraServices')) || [];
+    
+    if (!extraServices.find(s => s.n === name)) {
+        extraServices.push({ n: name, p: price });
+        localStorage.setItem('extraServices', JSON.stringify(extraServices));
+        updateExtraMenu(); 
+    }
+}
+
+function updateExtraMenu() {
+    let extraServices = JSON.parse(localStorage.getItem('extraServices')) || [];
+    if (document.getElementById('parent-select').value === 'khac') {
+        const subSelect = document.getElementById('main-select');
+        extraServices.forEach(item => {
+            let opt = document.createElement('option');
+            opt.value = item.n;
+            opt.text = `${item.n} - ${item.p}K (Đã lưu)`;
+            opt.setAttribute('data-price', item.p);
+            subSelect.appendChild(opt);
+        });
+    }
+}
+
+window.onload = function() {
+     updateExtraMenu();
+};
 </script>
 </body>
 </html>
