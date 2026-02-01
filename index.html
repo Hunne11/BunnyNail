@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Bunny Nail - Hệ Thống Tính Bill</title>
+    <style>
+        :root { --primary: #d63384; --bg: #fff5f8; --success: #28a745; }
+        * { box-sizing: border-box; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); display: flex; justify-content: center; padding: 20px; margin: 0; }
+        .container { display: flex; gap: 20px; max-width: 1000px; width: 100%; flex-wrap: wrap; }
+        .card { background: white; padding: 25px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); flex: 1; min-width: 350px; }
+        h2 { color: var(--primary); margin-top: 0; font-size: 1.4rem; border-bottom: 2px solid var(--bg); padding-bottom: 10px; }
+
+        .select-box { width: 100%; padding: 12px; border: 2px solid #eee; border-radius: 10px; font-size: 1rem; outline: none; margin-bottom: 10px; cursor: pointer; }
+        .select-box:focus { border-color: var(--primary); }
+        label { font-size: 0.8rem; color: #888; margin-bottom: 5px; display: block; font-weight: bold; }
+
+        .row { display: flex; gap: 10px; margin-bottom: 20px; }
+        .input-price { width: 100px; padding: 12px; border: 2px solid #eee; border-radius: 10px; text-align: right; }
+        .btn-add { flex: 1; background: var(--primary); color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; padding: 15px; transition: 0.3s; }
+        .btn-add:hover { opacity: 0.8; }
+
+        table { width: 100%; border-collapse: collapse; }
+        th { text-align: left; color: #888; font-size: 0.8rem; padding: 10px; border-bottom: 2px solid #f8f8f8; }
+        td { padding: 12px 10px; border-bottom: 1px solid #fcfcfc; }
+        
+        .total-box { background: var(--success); color: white; padding: 20px; border-radius: 15px; margin-top: 20px; display: flex; justify-content: space-between; font-size: 1.4rem; font-weight: bold; }
+        .remove-btn { color: #ff4d4d; border: none; background: none; cursor: pointer; font-weight: bold; font-size: 1.1rem; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="card">
+        <h2>Chọn Dịch Vụ</h2>
+        
+        <label>1. NHÓM CHÍNH</label>
+        <select id="parent-select" class="select-box" onchange="updateSubMenu()">
+            <option value="">-- Chọn Nhóm --</option>
+            <option value="son">SƠN MÓNG</option>
+            <option value="cham_soc">CHĂM SÓC</option>
+            <option value="trang_tri">TRANG TRÍ</option>
+            <option value="khac">KHÁC / GHI THÊM</option>
+        </select>
+
+        <label>2. CHI TIẾT</label>
+        <select id="main-select" class="select-box" onchange="autoFillPrice()">
+            <option value="">-- Chọn chi tiết --</option>
+        </select>
+
+        <div class="row">
+            <input type="text" id="custom-name" placeholder="Tên dịch vụ..." style="flex:2; padding:12px; border:2px solid #eee; border-radius:10px;">
+            <input type="number" id="custom-price" class="input-price" placeholder="Giá (K)">
+        </div>
+        <button class="btn-add" onclick="addItem()">THÊM VÀO BILL</button>
+
+        <div style="border-top: 1px dashed #ccc; padding-top: 15px; margin-top: 10px;">
+            <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+                <span>Công thợ (K):</span>
+                <input type="number" id="fee-cong" value="150" oninput="calculate()" style="width:70px;">
+            </div>
+            <div style="display:flex; justify-content:space-between;">
+                <span>Xăng xe (K):</span>
+                <input type="number" id="fee-xang" value="30" oninput="calculate()" style="width:70px;">
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>Hóa Đơn</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>DỊCH VỤ</th>
+                    <th style="text-align: center;">SL</th>
+                    <th style="text-align: right;">GIÁ</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody id="bill-body"></tbody>
+        </table>
+        
+        <div class="total-box">
+            <span>TỔNG:</span>
+            <span id="total-price">0đ</span>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Dữ liệu dịch vụ - Sửa giá tại đây rất nhanh bằng Ctrl + H
+    const serviceData = {
+        'son': [
+            {n: 'Sơn Gel Tay', p: 100}, {n: 'Sơn Gel Chân', p: 90}, 
+            {n: 'Sơn Thạch', p: 120}, {n: 'Mắt Mèo', p: 150},
+            {n: 'Tráng Gương', p: 150}, {n: 'Ombre', p: 150}, {n: 'French', p: 150},
+            {n: 'Úp Móng Tay', p: 50}, {n: 'Úp Móng Chân', p: 30}
+        ],
+        'cham_soc': [
+            {n: 'Sơn Cứng Móng', p: 50}, {n: 'Cắt Da', p: 30}, {n: 'Phá Gel', p: 20}
+        ],
+        'trang_tri': [
+            {n: 'Vẽ Nét', p: 15}, {n: 'Đính Đá Lớn', p: 10},
+            {n: 'Kim Tuyến', p: 5}, {n: 'Gel lặn', p: 15},
+            {n: 'Ẩn xà cừ', p: 10}, {n: 'Loang', p: 10}
+        ]
+    };
+
+    let basket = {};
+
+    function updateSubMenu() {
+        const parentVal = document.getElementById('parent-select').value;
+        const subSelect = document.getElementById('main-select');
+        subSelect.innerHTML = '<option value="">-- Chọn chi tiết --</option>';
+
+        if (serviceData[parentVal]) {
+            serviceData[parentVal].forEach(item => {
+                let opt = document.createElement('option');
+                opt.value = item.n;
+                opt.text = `${item.n} - ${item.p}K`;
+                opt.setAttribute('data-price', item.p);
+                subSelect.appendChild(opt);
+            });
+        }
+    }
+
+    function autoFillPrice() {
+        const select = document.getElementById('main-select');
+        const selectedOption = select.options[select.selectedIndex];
+        if (selectedOption && selectedOption.value) {
+            document.getElementById('custom-name').value = selectedOption.value;
+            document.getElementById('custom-price').value = selectedOption.getAttribute('data-price');
+        }
+    }
+
+    function addItem() {
+        const nameInp = document.getElementById('custom-name');
+        const priceInp = document.getElementById('custom-price');
+        let name = nameInp.value.trim();
+        let price = parseInt(priceInp.value);
+
+        if (!name || isNaN(price)) return alert("Thiếu tên hoặc giá!");
+
+        if (basket[name]) {
+            basket[name].qty += 1;
+        } else {
+            basket[name] = { price: price, qty: 1 };
+        }
+
+        nameInp.value = ""; priceInp.value = "";
+        renderBill();
+    }
+
+    function renderBill() {
+        const body = document.getElementById('bill-body');
+        body.innerHTML = "";
+        let subtotal = 0;
+
+        for (let n in basket) {
+            let item = basket[n];
+            subtotal += item.price * item.qty;
+            body.innerHTML += `<tr>
+                <td>${n}</td>
+                <td style="text-align: center;">x${item.qty}</td>
+                <td style="text-align: right;">${(item.price * item.qty)}k</td>
+                <td style="text-align: right;"><button class="remove-btn" onclick="removeItem('${n}')">✕</button></td>
+            </tr>`;
+        }
+        calculate(subtotal);
+    }
+
+    function removeItem(name) {
+        delete basket[name];
+        renderBill();
+    }
+
+    function calculate(sub = null) {
+        if (sub === null) {
+            sub = 0;
+            for (let n in basket) sub += basket[n].price * basket[n].qty;
+        }
+        const c = parseInt(document.getElementById('fee-cong').value) || 0;
+        const x = parseInt(document.getElementById('fee-xang').value) || 0;
+        document.getElementById('total-price').innerText = ((sub + c + x) * 1000).toLocaleString('vi-VN') + "đ";
+    }
+</script>
+</body>
+</html>
